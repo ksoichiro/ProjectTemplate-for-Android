@@ -22,9 +22,13 @@ before_install:
     - emulator -avd test -no-skin -no-audio -no-window &
 
 before_script:
+    # Copy dummy credentials for signing test
+    - cp -p ./tests/credentials/* ./.release-credentials/
+
     # Make sure the emulator has started before running tests
     - chmod +x wait-for-emulator
     - ./wait-for-emulator
 
 script:
     - TERM=dumb ./gradlew assemble
+    - TERM=dumb ./gradlew installDebug
