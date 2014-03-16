@@ -21,11 +21,11 @@ before_install:
     - echo no | android create avd --force -n test -t android-19
     - emulator -avd test -no-skin -no-audio -no-window &
 
-before_script:
     # Copy dummy credentials for signing test
     - cp -p ./tests/credentials/* ./.release-credentials/
     - ls -al ./.release-credentials/
 
+before_script:
     # Make sure the emulator has started before running tests
     - chmod +x wait-for-emulator
     - ./wait-for-emulator
