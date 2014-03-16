@@ -1,8 +1,11 @@
 /bin/
 /gen/
 /build/
+*.swp
 *.iml
 /.idea/
 /.gradle/
+/.release-credentials/*.keystore
+/.release-credentials/private-*.properties
 local.properties
-*.keystore
+.DS_Store

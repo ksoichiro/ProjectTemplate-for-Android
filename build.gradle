@@ -1,3 +1,5 @@
+import java.util.regex.Pattern
+
 buildscript {
     repositories {
         mavenCentral()
@@ -10,6 +12,32 @@ apply plugin: 'android'
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
+
+    // If you have installed 'Android Support Repository' from SDK Manager,
+    // you can get support-v4 library from repository by enabling this line:
+    //     compile 'com.android.support:support-v4:19.0.+'
+    // But be careful that 'libs/android-support-v4.jar' should be ignored.
+}
+
+// For Eclipse ADT users, we should manage versionCode and versionName
+// in AndroidManifest.xml.
+// So we get them from AndroidManifest and set to DSL objects.
+def getVersionCodeFromManifest() {
+    def manifestFile = file('AndroidManifest.xml')
+    def pattern = Pattern.compile("versionCode=\"(\\d+)\"")
+    def manifestText = manifestFile.getText()
+    def matcher = pattern.matcher(manifestText)
+    matcher.find()
+    return Integer.parseInt(matcher.group(1))
+}
+
+def getVersionNameFromManifest() {
+    def manifestFile = file('AndroidManifest.xml')
+    def pattern = Pattern.compile("versionName=\"([^\"]+)\"")
+    def manifestText = manifestFile.getText()
+    def matcher = pattern.matcher(manifestText)
+    matcher.find()
+    return matcher.group(1)
 }
 
 android {
@@ -19,10 +47,10 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
+            java.srcDirs = ['src/main']
+            resources.srcDirs = ['src/main']
+            aidl.srcDirs = ['src/main']
+            renderscript.srcDirs = ['src/main']
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
@@ -38,5 +66,95 @@ android {
         // by a similar customization.
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
+        staging.setRoot('build-types/staging')
+    }
+
+    defaultConfig {
+        // Get version information from AndroidManifest.
+        // Without these configs, DSL objects (versionCode, versionName) will be null.
+        versionCode getVersionCodeFromManifest()
+        versionName getVersionNameFromManifest()
+    }
+
+    signingConfigs {
+        releaseSigningConfig {
+            // Get credentials from properties files.
+            // ant.properties should contain this:
+            //     key.store=YOUR_PRODUCTION_KEYSTORE_NAME.keystore
+            //     key.alias=YOUR_PRODUCTION_ALIAS
+            // and you should manage this file with git.
+            //
+            // private-release.properties should contain this:
+            //     key.store.password=YOUR_PASSWORD_FOR_KEYSTORE
+            //     key.alias.password=YOUR_PASSWORD_FOR_ALIAS
+            // and you'd better add this file to .gitignore.
+
+            def fileAntProperties = file(".release-credentials/ant.properties")
+            def filePrivateProperties = file(".release-credentials/private-release.properties")
+            if (fileAntProperties.exists() && filePrivateProperties.exists()) {
+                Properties propsAnt = new Properties()
+                propsAnt.load(new FileInputStream(fileAntProperties))
+                Properties propsPrivate = new Properties()
+                propsPrivate.load(new FileInputStream(filePrivateProperties))
+
+                storeFile file(propsAnt['key.store'])
+                keyAlias propsAnt['key.alias']
+                storePassword propsPrivate['key.store.password']
+                keyPassword propsPrivate['key.alias.password']
+            }
+        }
+
+        stagingSigningConfig {
+            def fileAntProperties = file(".release-credentials/ant.properties")
+            def filePrivateProperties = file(".release-credentials/private-staging.properties")
+            if (fileAntProperties.exists() && filePrivateProperties.exists()) {
+                Properties propsPrivate = new Properties()
+                propsPrivate.load(new FileInputStream(filePrivateProperties))
+
+                storeFile file(propsAnt['key.store'])
+                keyAlias propsAnt['key.alias']
+                storePassword propsPrivate['key.store.password']
+                keyPassword propsPrivate['key.alias.password']
+            }
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
+    buildTypes {
+        debug {
+            zipAlign true
+        }
+
+        release {
+            runProguard true
+            proguardFile getDefaultProguardFile('proguard-android.txt')
+            proguardFile file('proguard-project.txt')
+            signingConfig signingConfigs.releaseSigningConfig
+        }
+
+        staging {
+            initWith release
+            packageNameSuffix ".staging"
+            signingConfig signingConfigs.stagingSigningConfig
+        }
+    }
+
+    // Get last commit hash to attach to APK file name.
+    project.ext.gitHash = "git rev-parse --short HEAD".execute().text.trim()
+
+    applicationVariants.all { variant ->
+        def apk = variant.packageApplication.outputFile;
+        def newName = apk.name.replace(".apk", "-${variant.mergedFlavor.versionCode}-${variant.mergedFlavor.versionName}-${project.ext.gitHash}.apk");
+        // If you want to rename unaligned apk, enable this:
+        //     variant.packageApplication.outputFile = new File(apk.parentFile, newName);
+        if (variant.zipAlign) {
+            variant.zipAlign.outputFile = new File(apk.parentFile, newName.replace("-unaligned", ""));
+        }
     }
 }
