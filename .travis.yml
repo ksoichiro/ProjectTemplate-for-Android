@@ -35,4 +35,6 @@ script:
     - TERM=dumb ./gradlew installStaging
 
     # Install by Ant
+    - TERM=dumb ant debug
     - TERM=dumb ant installd
+    - TERM=dumb ant release
