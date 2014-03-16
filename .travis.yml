@@ -30,4 +30,9 @@ before_script:
     - ./wait-for-emulator
 
 script:
+    # Install by Gradle
     - TERM=dumb ./gradlew installDebug
+    - TERM=dumb ./gradlew installStaging
+
+    # Install by Ant
+    - TERM=dumb ant installd
