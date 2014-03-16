@@ -1,5 +1,6 @@
 Project Template for Android
 ====
+[![Build Status](https://travis-ci.org/ksoichiro/ProjectTemplate-for-Android.png?branch=master)](https://travis-ci.org/ksoichiro/ProjectTemplate-for-Android)
 
 Android application project template files for both Android Studio and Eclipse.
 

@@ -23,7 +23,6 @@ before_install:
 
     # Copy dummy credentials for signing test
     - cp -p ./tests/credentials/* ./.release-credentials/
-    - ls -al ./.release-credentials/
 
 before_script:
     # Make sure the emulator has started before running tests
@@ -31,5 +30,4 @@ before_script:
     - ./wait-for-emulator
 
 script:
-    - TERM=dumb ./gradlew assemble
     - TERM=dumb ./gradlew installDebug
