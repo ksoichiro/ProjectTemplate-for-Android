@@ -79,7 +79,7 @@ android {
     signingConfigs {
         releaseSigningConfig {
             // Get credentials from properties files.
-            // ant.properties should contain this:
+            // ant-release.properties should contain this:
             //     key.store=YOUR_PRODUCTION_KEYSTORE_NAME.keystore
             //     key.alias=YOUR_PRODUCTION_ALIAS
             // and you should manage this file with git.
@@ -89,7 +89,7 @@ android {
             //     key.alias.password=YOUR_PASSWORD_FOR_ALIAS
             // and you'd better add this file to .gitignore.
 
-            def fileAntProperties = file(".release-credentials/ant.properties")
+            def fileAntProperties = file(".release-credentials/ant-release.properties")
             def filePrivateProperties = file(".release-credentials/private-release.properties")
             if (fileAntProperties.exists() && filePrivateProperties.exists()) {
                 Properties propsAnt = new Properties()
@@ -105,9 +105,11 @@ android {
         }
 
         stagingSigningConfig {
-            def fileAntProperties = file(".release-credentials/ant.properties")
+            def fileAntProperties = file(".release-credentials/ant-staging.properties")
             def filePrivateProperties = file(".release-credentials/private-staging.properties")
             if (fileAntProperties.exists() && filePrivateProperties.exists()) {
+                Properties propsAnt = new Properties()
+                propsAnt.load(new FileInputStream(fileAntProperties))
                 Properties propsPrivate = new Properties()
                 propsPrivate.load(new FileInputStream(filePrivateProperties))
 
