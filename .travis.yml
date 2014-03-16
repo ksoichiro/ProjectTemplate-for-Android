@@ -24,6 +24,7 @@ before_install:
 before_script:
     # Copy dummy credentials for signing test
     - cp -p ./tests/credentials/* ./.release-credentials/
+    - ls -al ./.release-credentials/
 
     # Make sure the emulator has started before running tests
     - chmod +x wait-for-emulator

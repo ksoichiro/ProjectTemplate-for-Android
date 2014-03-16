@@ -91,6 +91,8 @@ android {
 
             def fileAntProperties = file(".release-credentials/ant-release.properties")
             def filePrivateProperties = file(".release-credentials/private-release.properties")
+            println "Reading signing config from ant properties: ${fileAntProperties.absolutePath}"
+            println "Reading signing config from private properties: ${fileAntProperties.absolutePath}"
             if (fileAntProperties.exists() && filePrivateProperties.exists()) {
                 Properties propsAnt = new Properties()
                 propsAnt.load(new FileInputStream(fileAntProperties))
@@ -107,6 +109,8 @@ android {
         stagingSigningConfig {
             def fileAntProperties = file(".release-credentials/ant-staging.properties")
             def filePrivateProperties = file(".release-credentials/private-staging.properties")
+            println "Reading signing config from ant properties: ${fileAntProperties.absolutePath}"
+            println "Reading signing config from private properties: ${fileAntProperties.absolutePath}"
             if (fileAntProperties.exists() && filePrivateProperties.exists()) {
                 Properties propsAnt = new Properties()
                 propsAnt.load(new FileInputStream(fileAntProperties))
