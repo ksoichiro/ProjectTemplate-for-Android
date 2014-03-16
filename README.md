@@ -81,3 +81,21 @@ For release:
 For all build types:
 
     ./gradlew assemble
+
+## Supported versions
+
+Developed and tested under the following conditions.
+
+Software                      | Version
+----------------------------- | -----------------
+OS X                          | 10.9.2
+Android SDK Tools             | 22.6
+Android SDK Platform-tools    | 19.0.1
+Android SDK Build-tools       | 19.0.3
+Android SDK Platform          | API level 19 Rev.3
+Android Developer Tools (ADT) | v22.3
+Android Studio (Preview)      | 0.5.1
+Android Support Library       | 19.0.1
+Gradle                        | 1.11
+Android Gradle Plugin         | 0.9.0
+Git                           | 1.8.3.4
